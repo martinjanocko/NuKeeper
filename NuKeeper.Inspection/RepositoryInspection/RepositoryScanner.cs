@@ -20,9 +20,13 @@ namespace NuKeeper.Inspection.RepositoryInspection
             DirectoryBuildTargetsReader directoryBuildTargetsReader,
             IDirectoryExclusions directoryExclusions)
         {
+
+            var _ = nuspecFileReader;
+            var __ = directoryBuildTargetsReader;
+
             _finders = new IPackageReferenceFinder[]
             {
-                projectFileReader, packagesFileReader, nuspecFileReader, directoryBuildTargetsReader
+                projectFileReader, packagesFileReader
             };
 
             _directoryExclusions = directoryExclusions;

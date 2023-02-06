@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LibGit2Sharp;
+using LibGit2Sharp.Handlers;
 using NuKeeper.Abstractions;
 using NuKeeper.Abstractions.CollaborationModels;
 using NuKeeper.Abstractions.Git;
@@ -58,11 +59,58 @@ namespace NuKeeper.Git
                     {
                         CredentialsProvider = UsernamePasswordCredentials,
                         OnTransferProgress = OnTransferProgress,
-                        BranchName = branchName
+                        BranchName = branchName,
+                        RecurseSubmodules = true,
+                        OnCheckoutProgress = CheckoutHandler,
+                        OnProgress = CustomProgressHandler,
+                        RepositoryOperationStarting = RepositoryOperationStartingHandler,
+                        RepositoryOperationCompleted = RepositoryOperationCompletedHandler,
+                        OnUpdateTips = OnUpdateTipsHandler
                     });
 
                 _logger.Detailed("Git clone complete");
             });
+        }
+
+        private bool OnUpdateTipsHandler(string referencename, ObjectId oldid, ObjectId newid)
+        {
+            _logger.Detailed($"{nameof(OnUpdateTipsHandler)}: {referencename}, {oldid}, {newid}");
+
+            return true;
+        }
+
+        private void RepositoryOperationCompletedHandler(RepositoryOperationContext context)
+        {
+            _logger.Detailed($"{nameof(RepositoryOperationCompletedHandler)} {Environment.NewLine}" +
+                             $"{nameof(context.ParentRepositoryPath)}: {context.ParentRepositoryPath} {Environment.NewLine}" +
+                             $"{nameof(context.RecursionDepth)}: {context.RecursionDepth} {Environment.NewLine}" +
+                             $"{nameof(context.RemoteUrl)}: {context.RemoteUrl} {Environment.NewLine}" +
+                             $"{nameof(context.RepositoryPath)}: {context.RepositoryPath} {Environment.NewLine}" +
+                             $"{nameof(context.SubmoduleName)}: {context.SubmoduleName} {Environment.NewLine}");
+        }
+
+        private bool RepositoryOperationStartingHandler(RepositoryOperationContext context)
+        {
+            _logger.Detailed($"{nameof(RepositoryOperationStartingHandler)} {Environment.NewLine}" +
+                             $"{nameof(context.ParentRepositoryPath)}: {context.ParentRepositoryPath} {Environment.NewLine}" +
+                             $"{nameof(context.RecursionDepth)}: {context.RecursionDepth} {Environment.NewLine}" +
+                             $"{nameof(context.RemoteUrl)}: {context.RemoteUrl} {Environment.NewLine}" +
+                             $"{nameof(context.RepositoryPath)}: {context.RepositoryPath} {Environment.NewLine}" +
+                             $"{nameof(context.SubmoduleName)}: {context.SubmoduleName} {Environment.NewLine}");
+
+            return true;
+        }
+
+        private bool CustomProgressHandler(string serverprogressoutput)
+        {
+            _logger.Detailed($"{serverprogressoutput}");
+
+            return true;
+        }
+
+        private void CheckoutHandler(string path, int completedsteps, int totalsteps)
+        {
+            _logger.Detailed($"{path}, {completedsteps} / {totalsteps}");
         }
 
         private bool OnTransferProgress(TransferProgress progress)

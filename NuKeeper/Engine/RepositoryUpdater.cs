@@ -159,7 +159,7 @@ namespace NuKeeper.Engine
         private static async Task GitInit(IGitDriver git, RepositoryData repository)
         {
             await git.Clone(repository.Pull.Uri, repository.DefaultBranch);
-            repository.DefaultBranch = repository.DefaultBranch ?? await git.GetCurrentHead();
+            repository.DefaultBranch ??= await git.GetCurrentHead();
             await git.AddRemote(repository.Remote, repository.Push.Uri);
         }
     }

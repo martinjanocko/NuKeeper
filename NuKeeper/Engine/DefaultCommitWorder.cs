@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using NuGet.Packaging.Core;
@@ -87,7 +88,7 @@ namespace NuKeeper.Engine
 
             var projectOptS = (projects.Count > 1) ? "s" : string.Empty;
 
-            builder.AppendLine($"{updates.Count} packages were updated in {projects.Count} project{projectOptS}:");
+            builder.AppendLine(CultureInfo.InvariantCulture, $"{updates.Count} packages were updated in {projects.Count} project{projectOptS}:");
             builder.AppendLine(packageNames);
             builder.AppendLine("<details>");
             builder.AppendLine("<summary>Details of updated packages</summary>");
@@ -122,12 +123,12 @@ namespace NuKeeper.Engine
 
             if (oldVersions.Count == 1)
             {
-                builder.AppendLine($"NuKeeper has generated a {changeLevel} update of {packageId} to {newVersion} from {oldVersions.JoinWithCommas()}");
+                builder.AppendLine(CultureInfo.InvariantCulture, $"NuKeeper has generated a {changeLevel} update of {packageId} to {newVersion} from {oldVersions.JoinWithCommas()}");
             }
             else
             {
-                builder.AppendLine($"NuKeeper has generated a {changeLevel} update of {packageId} to {newVersion}");
-                builder.AppendLine($"{oldVersions.Count} versions of {packageId} were found in use: {oldVersions.JoinWithCommas()}");
+                builder.AppendLine(CultureInfo.InvariantCulture, $"NuKeeper has generated a {changeLevel} update of {packageId} to {newVersion}");
+                builder.AppendLine(CultureInfo.InvariantCulture, $"{oldVersions.Count} versions of {packageId} were found in use: {oldVersions.JoinWithCommas()}");
             }
 
             if (updates.Selected.Published.HasValue)
@@ -137,7 +138,7 @@ namespace NuKeeper.Engine
                 var pubDate = updates.Selected.Published.Value.UtcDateTime;
                 var ago = TimeSpanFormat.Ago(pubDate, DateTime.UtcNow);
 
-                builder.AppendLine($"{packageWithVersion} was published at {pubDateString}, {ago}");
+                builder.AppendLine(CultureInfo.InvariantCulture, $"{packageWithVersion} was published at {pubDateString}, {ago}");
             }
 
             var highestVersion = updates.Packages.Major?.Identity.Version;
@@ -154,7 +155,7 @@ namespace NuKeeper.Engine
             }
             else
             {
-                builder.AppendLine($"{updates.CurrentPackages.Count} project updates:");
+                builder.AppendLine(CultureInfo.InvariantCulture, $"{updates.CurrentPackages.Count} project updates:");
             }
 
             foreach (var current in updates.CurrentPackages)
@@ -211,7 +212,7 @@ namespace NuKeeper.Engine
 
             var highestPublishedAt = HighestPublishedAt(updates.Packages.Major.Published);
 
-            builder.AppendLine(
+            builder.AppendLine(CultureInfo.InvariantCulture,
                 $"There is also a higher version, {highest}{highestPublishedAt}, " +
                 $"but this was not applied as only {allowedChange} version changes are allowed.");
         }

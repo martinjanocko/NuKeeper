@@ -1,11 +1,14 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using NuKeeper.Abstractions.Inspections.Files;
 using NuKeeper.Abstractions.Logging;
 
 namespace NuKeeper.Inspection.Files
 {
+    #pragma warning disable CA1031
     public class Folder : IFolder
     {
         private readonly INuKeeperLogger _logger;
@@ -21,18 +24,38 @@ namespace NuKeeper.Inspection.Files
 
         public IReadOnlyCollection<FileInfo> Find(string pattern)
         {
-            try
-            {
-                return _root
-                    .EnumerateFiles(pattern, SearchOption.AllDirectories)
-                    .ToList();
+            _logger.Detailed($"Starting to search for files with pattern: {pattern}");
+            var list = new List<FileInfo>();
+            using var enumerator = _root.EnumerateFiles("*", SearchOption.AllDirectories).GetEnumerator();
 
-            }
-            catch (IOException ex)
+            while (true)
             {
-                _logger.Minimal(ex.Message);
-                return new List<FileInfo>();
+                try
+                {
+                    if (!enumerator.MoveNext())
+                        break;
+
+                    var file = enumerator.Current;
+                    if (file is not null && Regex.IsMatch(file.Name, pattern))
+                    {
+                        _logger.Detailed($"Added file: {file.Name}");
+                        list.Add(enumerator.Current);
+                    }
+                    else
+                    {
+                        _logger.Detailed($"Skip file: {file?.Name}");
+                    }
+                }
+                catch (Exception e)
+                {
+                  _logger.Detailed($"Inner loop: {e.Message}{Environment.NewLine}" +
+                                   $"{e.Source}{Environment.NewLine}" +
+                                   $"{e.StackTrace}{Environment.NewLine}");
+                }
             }
+
+            _logger.Detailed($"Returning list of {list.Count} files");
+            return list;
         }
 
         public void TryDelete()

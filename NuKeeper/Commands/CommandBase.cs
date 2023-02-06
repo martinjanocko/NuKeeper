@@ -9,6 +9,7 @@ using NuKeeper.Engine;
 using NuKeeper.Inspection.Logging;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -287,7 +288,7 @@ namespace NuKeeper.Commands
             {
                 if (!BranchNamer.IsValidTemplateToken(token))
                 {
-                    tokenErrors.Append($",{token}");
+                    tokenErrors.Append(CultureInfo.InvariantCulture, $",{token}");
                 }
             }
 
